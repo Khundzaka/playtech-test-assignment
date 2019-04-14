@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>PlayTech Demo</title>
+    <link rel="stylesheet" href="bulma.min.css">
+</head>
+<body>
+<div id="app" class="container">
+
+    <h1 class="is-size-1">Palindrome</h1>
+    <br>
+
+    <div class="field">
+    <label class="label">Word</label>
+    <div class="control">
+        <input class="input" id="word" type="text" v-model="form.word" placeholder="Word">
+    </div>
+    <p v-if="form.error" class="help is-danger">Name is required to be filled</p>
+    </div>
+
+    <label class="checkbox">
+    <input type="checkbox" id="expected" v-model="form.expected">
+    Expected to be palindrome
+    </label>
+
+    <div class="control">
+        <button @click="add()" class="button is-link">Add</button>
+    </div>
+    <br>
+
+    <h2 class="is-size-2">Results</h2>
+
+    <table class="table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Word</th>
+      <th>Expected Matches Actual</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="(test, index) in results">
+      <th>{{index + 1}}</th>
+      <td>{{test.word}}</td>
+      <td :class="[test.isMatch ? 'has-background-success' : 'has-background-danger']">{{test.isMatch ? 'Yes': 'No'}}</td>
+    </tr>
+    </tbody>
+    </table>
+</div>
+
+<script src="vue.min.js"></script>
+<script>
+
+    // assuming, that spaces between words should be ignored
+    function isPalindrome (word) {
+        var temp1 = "";
+        var temp2 = "";
+        word = word.toLowerCase();
+        for (var i=0; i<word.length; i++){
+            if(word[i] !== " "){
+                temp1 = word[i] + temp1;
+                temp2 = temp2 + word[i];
+            }
+        }
+        return temp1 === temp2;
+    }
+
+    console.log (isPalindrome("anna") === true);
+    console.log (isPalindrome("Anna") === true);
+    console.log (isPalindrome("anna ") === true);
+    console.log (isPalindrome("YellowSubmarine") === false);
+
+    new Vue({
+            el: '#app',
+            
+            data: function(){
+                return { 
+                    tests: [
+                        {word: "anna", expected: true},
+                        {word: "Anna", expected: true},
+                        {word: "anna ", expected: true},
+                        {word: "YellowSubmarine", expected: false}
+                    ],
+                    form: {
+                        word: "",
+                        expected: true,
+                        error: false,
+                    }
+                    
+                };
+            },
+            computed: {
+                results: function(){
+                    return this.tests.map(function(el){
+                        console.log(el);
+                        el.actual = isPalindrome(el.word);
+                        el.isMatch = el.actual === el.expected;
+                        return el;
+                    });
+                }
+            },
+            methods: {
+                add: function(){
+                    this.form.error = false;
+
+                    if(this.form.word.trim().length === 0){
+                        this.form.error = true;
+                        return;
+                    }
+                    this.tests.push({word:this.form.word, expected:this.form.expected});
+                    this.form.expected = true;
+                    this.form.word = "";
+                }
+            }
+        })
+</script>
+</body>
+</html>
